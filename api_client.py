@@ -54,3 +54,42 @@ class BookingApiClient:
         )
 
         return response
+    def update_booking(self, booking_id, booking_data,token):
+        # Create the request URL
+        url = BASE_URL + "/booking/" + str(booking_id)
+
+        # Create request headers
+        headers = {
+            "Cookie": "token=" + token,
+            "Content-Type": "application/json",
+        }
+
+        # Send a PUT request
+        response = self.session.put(
+            url,
+            json=booking_data,
+            headers=headers,
+            timeout=REQUEST_TIMEOUT,
+        )
+
+        return response
+
+    def partial_update_booking(self, booking_id, partial_data, token):
+        # Create the request URL
+        url = BASE_URL + "/booking/" + str(booking_id)
+
+        # Create request headers
+        headers = {
+            "Cookie": "token="+ token,
+            "Content-Type": "application/json",
+        }
+
+        # Send a PATCH request
+        response = self.session.patch(
+            url,
+            json=partial_data,
+            headers=headers,
+            timeout=REQUEST_TIMEOUT,
+        )
+
+        return response
