@@ -1,3 +1,5 @@
+from pprint import pprint
+
 
 def test_create_booking(api_client, auth_token, booking_data):
     # Send a POST request to create a booking
@@ -8,7 +10,6 @@ def test_create_booking(api_client, auth_token, booking_data):
 
     # Convert the JSON response to a Python dictionary
     response_data = response.json()
-    print(response_data)
 
     # Get the booking ID and booking data from the response
     booking_id = response_data["bookingid"]
@@ -19,6 +20,10 @@ def test_create_booking(api_client, auth_token, booking_data):
 
     # Check that the API returned the same booking data
     assert created_booking == booking_data
+
+    print("\nCREATE BOOKING RESPONSE")
+    print("Status code:", response.status_code)
+    pprint(response.json())
 
     # Delete the booking after the test
     api_client.delete_booking(booking_id, auth_token)
@@ -41,6 +46,10 @@ def test_get_booking(api_client, created_booking):
     # Check that the returned data is correct
     assert actual_data == expected_data
 
+    print("\nGET BOOKING DATA")
+    print("Status code:", response.status_code)
+    pprint(response.json())
+
 def test_update_booking(api_client, auth_token, created_booking):
     # Get the booking ID from the fixture
     booking_id = created_booking["id"]
@@ -59,6 +68,10 @@ def test_update_booking(api_client, auth_token, created_booking):
     response = api_client.update_booking(booking_id, updated_date, auth_token)
     assert response.status_code == 200
     assert response.json() == updated_date
+
+    print("\nUPDATE BOOKING RESPONSE")
+    print("Status code:", response.status_code)
+    pprint(response.json())
 
 def test_partial_update_booking(api_client, auth_token, created_booking):
     booking_id = created_booking["id"]
@@ -79,6 +92,31 @@ def test_partial_update_booking(api_client, auth_token, created_booking):
     # Check that another field was not changed
     assert actual_data["bookingdates"] == original_data["bookingdates"]
 
+    print("\n PARTIAL UPDATE BOOKING RESPONSE")
+    print("Status code:", response.status_code)
+    pprint(response.json())
+
+def test_partial_date_update_booking(api_client, auth_token, created_booking):
+    booking_id = created_booking["id"]
+    original_data = created_booking["data"]
+    updated_partial_info = {
+        "bookingdates": {
+            "checkin": "2026-08-11",
+            "checkout": "2026-08-19",
+        },
+    }
+    response = api_client.partial_update_booking(booking_id, updated_partial_info, auth_token)
+    assert response.status_code == 200
+
+    actual_data = response.json()
+
+    assert actual_data["bookingdates"] == updated_partial_info["bookingdates"]
+
+    assert actual_data["firstname"] == original_data["firstname"]
+
+    print("\n PARTIAL DATE UPDATE BOOKING RESPONSE")
+    print("Status code:", response.status_code)
+    pprint(response.json())
 
 def test_delete_booking(api_client, auth_token, created_booking):
     # Get the booking ID from the fixture
@@ -91,3 +129,6 @@ def test_delete_booking(api_client, auth_token, created_booking):
     get_deleted =api_client.get_booking(booking_id)
 
     assert get_deleted.status_code == 404
+
+    print("\nDELETE BOOKING RESPONSE")
+    print("Status code:", get_deleted.status_code)
